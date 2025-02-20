@@ -1,0 +1,117 @@
+import 'package:flutter/material.dart';
+import 'package:encrypted_db_storage/encrypted_db_storage.dart';
+
+// Modelo de dados para o exemplo
+class User {
+  final String username;
+  final String email;
+
+  User({required this.username, required this.email});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'username': username,
+      'email': email,
+    };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      username: json['username'],
+      email: json['email'],
+    );
+  }
+}
+
+void main() async {
+  // Inicializa o banco de dados com parâmetros personalizados
+  await EncryptedDB.init(
+    dbName: "example_secure_data.db",  // Nome do banco de dados
+    tableName: "user_table",          // Nome da tabela
+    key: "dynamic_encryption_key",    // Chave de criptografia
+  );
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Encrypted DB Storage Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  // Função para salvar dados simples
+  void _saveSimpleData() async {
+    await EncryptedDB.saveData('user_token', 'my_secure_token');
+    print('User token saved!');
+  }
+
+  // Função para salvar e recuperar objeto
+  void _saveAndRetrieveUser() async {
+    User user = User(username: 'john_doe', email: 'john@example.com');
+    
+    // Serializa e salva o objeto
+    String serializedUser = EncryptedDB._serialize(user);
+    await EncryptedDB.saveData('user_info', serializedUser);
+    print('User information saved!');
+    
+    // Recupera e desserializa o objeto
+    String? userJson = await EncryptedDB.getData('user_info');
+    if (userJson != null) {
+      User retrievedUser = EncryptedDB._deserialize(userJson, (json) => User.fromJson(json));
+      print('Retrieved User: ${retrievedUser.username}, ${retrievedUser.email}');
+    }
+  }
+
+  // Função para excluir dados
+  void _deleteUserToken() async {
+    await EncryptedDB.deleteData('user_token');
+    print('User token deleted!');
+  }
+
+  // Função para fechar o banco de dados
+  void _closeDatabase() async {
+    await EncryptedDB.closeDB();
+    print('Database closed!');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Encrypted DB Storage Example'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: _saveSimpleData,
+              child: Text('Save Simple Data (Token)'),
+            ),
+            ElevatedButton(
+              onPressed: _saveAndRetrieveUser,
+              child: Text('Save and Retrieve User Info'),
+            ),
+            ElevatedButton(
+              onPressed: _deleteUserToken,
+              child: Text('Delete User Token'),
+            ),
+            ElevatedButton(
+              onPressed: _closeDatabase,
+              child: Text('Close Database'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
