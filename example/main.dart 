@@ -1,37 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:encrypted_db_storage/encrypted_db_storage.dart';
+import 'package:secret_db/secret_db.dart';
 
-// Modelo de dados para o exemplo
+//  exemplo
 class User {
-  final String username;
+  final int id; // The ID will now be generated automatically
+  final String name;
   final String email;
 
-  User({required this.username, required this.email});
+  User({required this.id, required this.name, required this.email});
 
-  Map<String, dynamic> toJson() {
-    return {
-      'username': username,
-      'email': email,
-    };
-  }
+  // Method to convert the object to JSON
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'email': email,
+  };
 
+  // Method to create a `User` object from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      username: json['username'],
+      id: json['id'],
+      name: json['name'],
       email: json['email'],
     );
   }
 }
 
+
 void main() async {
-  // Inicializa o banco de dados com parâmetros personalizados
-  await EncryptedDB.init(
-    dbName: "example_secure_data.db",  // Nome do banco de dados
-    tableName: "user_table",          // Nome da tabela
-    key: "dynamic_encryption_key",    // Chave de criptografia
+  // Initializing the database (call the init method only once)
+  await SecretDB.init(
+    dbName: "secure_database.db",
+    tableName: "user_data",
+    key: "my_secure_dynamic_key", // The encryption key can be provided or dynamic
   );
-  runApp(MyApp());
+
+
+  // If needed, and if you wish to set the desired ID, you can use it without the GeneratedID
+  // and generate your preferred ID. Otherwise, by using the GeneratedID, the package will 
+  // automatically generate a random ID for the record.
+
+  // 1   - Exemplo SaveData with GeneratedID
+  User user = User(name: "John Doe", email: "john.doe@example.com");
+  // Saving the user to the database with an automatically generated ID
+  await SecretDB.saveDataWithGeneratedID(user);
+
+  // 2   - Exemplo SaveData WithoutGeneratedID
+  User user = User(id: 2, name: "John Doe", email: "john.doe@example.com");
+  await SecretDB.saveData(user);
+
+  // Retrieving the user from the database
+  // (Here you should use the generated ID for the query, or keep the ID generated when saving)
+  // In this case, we assume that the generated ID is returned or we already know it
+  String generatedID = 'some_generated_id';  // The ID returned after insertion (example)
+  User? retrievedUser = await SecretDB.getData<User>(generatedID, (json) => User.fromJson(json));
+
+  // Printing the retrieved user's name
+  if (retrievedUser != null) {
+    print("User's name: ${retrievedUser.name}");
+  } else {
+    print("User not found");
+  }
+
+  // Closing the database when done
+  await SecretDB.closeDB();
 }
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -49,7 +83,7 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   // Função para salvar dados simples
   void _saveSimpleData() async {
-    await EncryptedDB.saveData('user_token', 'my_secure_token');
+    await SecretDB.saveData('user_token', 'my_secure_token');
     print('User token saved!');
   }
 
@@ -58,27 +92,27 @@ class HomePage extends StatelessWidget {
     User user = User(username: 'john_doe', email: 'john@example.com');
     
     // Serializa e salva o objeto
-    String serializedUser = EncryptedDB._serialize(user);
-    await EncryptedDB.saveData('user_info', serializedUser);
+    String serializedUser = SecretDB._serialize(user);
+    await SecretDB.saveData('user_info', serializedUser);
     print('User information saved!');
     
     // Recupera e desserializa o objeto
-    String? userJson = await EncryptedDB.getData('user_info');
+    String? userJson = await SecretDB.getData('user_info');
     if (userJson != null) {
-      User retrievedUser = EncryptedDB._deserialize(userJson, (json) => User.fromJson(json));
+      User retrievedUser = SecretDB._deserialize(userJson, (json) => User.fromJson(json));
       print('Retrieved User: ${retrievedUser.username}, ${retrievedUser.email}');
     }
   }
 
   // Função para excluir dados
   void _deleteUserToken() async {
-    await EncryptedDB.deleteData('user_token');
+    await SecretDB.deleteData('user_token');
     print('User token deleted!');
   }
 
   // Função para fechar o banco de dados
   void _closeDatabase() async {
-    await EncryptedDB.closeDB();
+    await SecretDB.closeDB();
     print('Database closed!');
   }
 
