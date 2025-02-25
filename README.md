@@ -4,7 +4,7 @@
 
 
 
-`secret_db` is a Flutter package that allows secure and encrypted data storage using an [link text](https://pub.dev/packages/sqflite)
+`secret_db` is a Flutter package that allows secure and encrypted data storage using an [SQLite database](https://pub.dev/packages/sqflite)
 
 It provides a convenient way to store sensitive data with encryption and protection against data extraction on rooted/jailbroken devices.
 
@@ -16,6 +16,23 @@ This package was developed to provide secure data storage in Flutter by using AE
 - AES Encryption: Provides stronger encryption for storing sensitive data securely.
 - Protection against data extraction on rooted/jailbroken devices.
 - Support for storing simple data (like `String`) or objects (like serialized classes).
+
+## 6 Cybersecurity Benefits of Using secret_db
+
+These benefits make secret_db a robust solution for ensuring the security of sensitive data in your Flutter application, protecting against a wide range of cyber threats.
+
+> 1 - Strong AES Encryption Data is encrypted using AES (Advanced Encryption Standard), providing robust protection
+
+> 2 - Protection on Rooted/Jailbroken Devices: Ensures data remains secure even on compromised devices, reducing risks from malware
+
+> 3- Dynamic Key Management: Encryption keys are securely generated and stored, avoiding hardcoding or exposure in the codebase.
+
+> 4 - Secure Data Serialization: Prevents tampering with complex objects by securely serializing and deserializing data, ensuring integrity.
+
+> 5 -  Data Protection in Storage: Stored data is encrypted before being written to the database, ensuring it’s unreadable even if the database is accessed.
+
+> 6 - Prevents Data Leakage: Even if an attacker gains physical access to the device, encrypted data stays protected.
+
   
 ## Example Initialization:
 ```
