@@ -4,7 +4,7 @@
 
 
 
-`secret_db` is a Flutter package that allows secure and encrypted data storage using an [SQLite database]([README.md](https://pub.dev/packages/sqflite))
+`secret_db` is a Flutter package that allows secure and encrypted data storage using an [link text](https://pub.dev/packages/sqflite)
 
 It provides a convenient way to store sensitive data with encryption and protection against data extraction on rooted/jailbroken devices.
 
