@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:secret_db/secret_db.dart';
 
-//  exemplo
+// Data model definition
 class User {
-  final int id; // The ID will now be generated automatically
+  final int id;
   final String name;
   final String email;
 
@@ -16,7 +16,7 @@ class User {
     'email': email,
   };
 
-  // Method to create a `User` object from JSON
+  // Method to create a User object from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
@@ -26,7 +26,6 @@ class User {
   }
 }
 
-
 void main() async {
   // Initializing the database (call the init method only once)
   await SecretDB.init(
@@ -35,37 +34,36 @@ void main() async {
     key: "my_secure_dynamic_key", // The encryption key can be provided or dynamic
   );
 
+  // 1 - Example SaveData with GeneratedID (ID generated automatically)
+  User newUser = User(id: 0, name: "John Doe", email: "john.doe@example.com");
+  await SecretDB.saveDataWithGeneratedID(newUser);
 
-  // If needed, and if you wish to set the desired ID, you can use it without the GeneratedID
-  // and generate your preferred ID. Otherwise, by using the GeneratedID, the package will 
-  // automatically generate a random ID for the record.
+  // 2 - Example SaveData with provided ID (not generated automatically)
+  User userWithID = User(id: 2, name: "Jane Smith", email: "jane.smith@example.com");
+  await SecretDB.saveData(userWithID.id.toString(), userWithID);
 
-  // 1   - Exemplo SaveData with GeneratedID
-  User user = User(name: "John Doe", email: "john.doe@example.com");
-  // Saving the user to the database with an automatically generated ID
-  await SecretDB.saveDataWithGeneratedID(user);
-
-  // 2   - Exemplo SaveData WithoutGeneratedID
-  User user = User(id: 2, name: "John Doe", email: "john.doe@example.com");
-  await SecretDB.saveData(user);
-
-  // Retrieving the user from the database
-  // (Here you should use the generated ID for the query, or keep the ID generated when saving)
-  // In this case, we assume that the generated ID is returned or we already know it
-  String generatedID = 'some_generated_id';  // The ID returned after insertion (example)
+  // 3 - Retrieving data
+  String generatedID = 'some_generated_id'; // The automatically generated ID or the ID provided when saving
   User? retrievedUser = await SecretDB.getData<User>(generatedID, (json) => User.fromJson(json));
 
-  // Printing the retrieved user's name
   if (retrievedUser != null) {
-    print("User's name: ${retrievedUser.name}");
+    print("Retrieved User's name: ${retrievedUser.name}");
   } else {
     print("User not found");
   }
 
-  // Closing the database when done
+  // 4 - Updating data (with updateData)
+  User updatedUser = User(id: 2, name: "Jane Smith Updated", email: "jane.updated@example.com");
+  await SecretDB.updateData(userWithID.id.toString(), updatedUser);
+  print('User data updated!');
+
+  // 5 - Deleting data
+  await SecretDB.deleteData('some_generated_id');
+  print('Data deleted!');
+
+  // Close the database when done
   await SecretDB.closeDB();
 }
-
 
 class MyApp extends StatelessWidget {
   @override
@@ -81,36 +79,36 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  // Função para salvar dados simples
+  // Function to save simple data
   void _saveSimpleData() async {
     await SecretDB.saveData('user_token', 'my_secure_token');
     print('User token saved!');
   }
 
-  // Função para salvar e recuperar objeto
+  // Function to save and retrieve an object
   void _saveAndRetrieveUser() async {
-    User user = User(username: 'john_doe', email: 'john@example.com');
+    User user = User(id: 0, name: 'john_doe', email: 'john@example.com');
     
-    // Serializa e salva o objeto
+    // Serialize and save the object
     String serializedUser = SecretDB._serialize(user);
     await SecretDB.saveData('user_info', serializedUser);
     print('User information saved!');
     
-    // Recupera e desserializa o objeto
+    // Retrieve and deserialize the object
     String? userJson = await SecretDB.getData('user_info');
     if (userJson != null) {
       User retrievedUser = SecretDB._deserialize(userJson, (json) => User.fromJson(json));
-      print('Retrieved User: ${retrievedUser.username}, ${retrievedUser.email}');
+      print('Retrieved User: ${retrievedUser.name}, ${retrievedUser.email}');
     }
   }
 
-  // Função para excluir dados
+  // Function to delete data
   void _deleteUserToken() async {
     await SecretDB.deleteData('user_token');
     print('User token deleted!');
   }
 
-  // Função para fechar o banco de dados
+  // Function to close the database
   void _closeDatabase() async {
     await SecretDB.closeDB();
     print('Database closed!');

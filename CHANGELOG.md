@@ -1,7 +1,12 @@
 # Changelog
+
+## [1.4.0] 
+### Added
+- Updated the README.md update method
+
 ## [1.3.0] - 2025-02-25
 ### Added
-- Updated the README.mdgit co
+- Updated the README.md
 
 ## [1.2.0] - 2025-02-25
 ### Added
